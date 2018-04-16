@@ -14,10 +14,8 @@ const sort = (left, right) => {
 
 const divide = (array) => {
     if (array.length <= 1) return array;
-    let main_array = [];
-    let middle_index = parseInt(array.length / 2);
-    let left_array = array.slice(0, middle_index);
-    let right_array = array.slice(middle_index);
+    let [main_array, middle_index] = [[], parseInt(array.length / 2)];
+    let [left_array, right_array] = [array.slice(0, middle_index), array.slice(middle_index)];
     return main_array.concat(sort(divide(left_array), divide(right_array)));
 }
 
