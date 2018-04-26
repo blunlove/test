@@ -1,6 +1,5 @@
 function inheritPrototype(subType, superType) {
     let prototype = Object.create(superType.prototype);
-    // console.log(prototype)
     prototype.constructor = subType;
     subType.prototype = prototype;
 }
@@ -17,11 +16,6 @@ function SubType(name, age) {
     this.age = age;
 }
 inheritPrototype(SubType, SuperType);
-// SubType.prototype.prototype = SuperType.prototype;
-// SubType.prototype.sayName = function () {
-//     console.log(false);
-// }
-console.log(SubType.prototype.sayName == SuperType.prototype.sayName)
 SubType.prototype.sayAge = function() {
     console.log(this.age);
 }
