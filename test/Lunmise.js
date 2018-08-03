@@ -1,51 +1,78 @@
+const success = Symbol('success');
+const fail = Symbol('fail');
+const result = Symbol('result');
+const error = Symbol('error');
+const resolve_back = Symbol('resolve_back');
+const reject_back = Symbol('reject_back');
 class Lunmise {
   constructor(real) {
-    this.success = false;
-    this.fail = false;
-    this.result = null;
-    this.resolve_back = null;
-    this.reject_back = null;
-    this.next = null;
-    this.error = null;
+    this[success] = false;
+    this[fail] = false;
+    this[result] = null;
+    this[error] = null;
+    this[resolve_back] = [];
+    this[reject_back] = [];
     real(this.resolve.bind(this), this.reject.bind(this));
   }
   resolve(res) {
-    if (this.fail === false) {
-      this.success = true;
-      this.result = res;
-      this.next = this.resolve_back ? this.resolve_back(this.result) : null;
+    // console.log(res)
+    if (this[fail] === false) {
+      this[success] = true;
+      this[result] = res;
+      // console.log(res)
+      while (this[resolve_back].length > 0) {
+        let next_fn = this[resolve_back].shift();
+        let next_result = next_fn(this[result]);
+        console.log(next_result);
+        if (next_result instanceof Lunmise) {
+          [next_result[resolve_back], next_result[reject_back]] = [this[resolve_back], this[reject_back]]; 
+          return;
+        }
+        this[result] = next_result;
+      }
     }
   }
   reject(err) {
-    if (this.success === false) {
-      this.fail = true;
-      this.result = err;
-      this.error = this.reject_back ? this.reject_back(this.result) : null;
+    if (this[success] === false) {
+      this[fail] = true;
+      this[error] = err;
+      while (this[reject_back].length > 0) {
+        let next_fn = this[reject_back].shift();
+        this[error] = next_fn(this[error]);
+      }
     }
   }
   then(fn) {
-    this.resolve_back = fn;
-    return new Promise(resolve => {
-      resolve(this.next);
-    });
+    this[resolve_back].push(fn);
+    return this;
   }
   catch(fn) {
-    this.reject_back = fn;
-    return new Promise((resolve, reject) => {
-      reject(this.error);
-    });
+    this[reject_back].push(fn);
+    return this;
+  }
+  static resolve(res) {
+    return new Lunmise(resolve => resolve(res));
+  }
+  static reject(err) {
+    return new Lunmise((resolve, reject) => reject(err));
   }
 }
 
 function first() {
-  new Lunmise((resolve, reject) => {
+  return new Lunmise((resolve, reject) => {
     setTimeout(() => {
-      if(Math.random() > 0.5) {
-        resolve('alun233');
-      } else {
-        reject('error');
-      }
+      resolve('alun233');
     }, 1000);
+  }).then(res => {
+    console.log(res);
+    return new Lunmise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('Lunmise2');
+      }, 1000);
+    })
+  }).then(res => {
+    console.log(res);
+    return Lunmise.resolve('static method');
   }).then(res => {
     console.log(res);
   }).catch(err => {
@@ -53,4 +80,4 @@ function first() {
   })
 }
 
-first()
+let a = first()
