@@ -11,10 +11,12 @@ const sort = (array, begin, end) => {
     while (begin != end) {
         while (array[end] >= array[_begin] && end > begin) end--;
         while (array[begin] <= array[_begin] && end > begin) begin++;
-        exchange(array, begin, end);
+        [array[begin], array[end]] = [array[end], array[begin]];
+        // exchange(array, begin, end);
         // console.log(array)
     }
-    exchange(array, _begin, begin);
+    [array[_begin], array[begin]] = [array[begin], array[_begin]];
+    // exchange(array, _begin, begin);
     // console.log(array)
     sort(array, _begin, begin - 1);
     sort(array, begin + 1, _end);
