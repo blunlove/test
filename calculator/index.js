@@ -35,7 +35,7 @@ function main() {
         return this.inputArray.join('') || '0';
       },
       formulaInput() {
-        return this.formulaArray.map(item => item.lenght > 1 && item[0] === '-' ? `(${item})` : item).join('');
+        return this.formulaArray.map(item => item.length > 1 && item[0] === '-' ? `(${item})` : item).join('');
       }
     },
     components: {},
@@ -50,7 +50,6 @@ function main() {
       },
       buttonClick(item) {
         if (item.isInput && this.inputArray.length < 10) {
-          console.log(this.inputArray.length);
           if (this.inputArray.length === 0 && item.value === '0') return;
           this.inputArray.push(item.value);
         } else if (item.value === '<=') {
@@ -96,6 +95,12 @@ function main() {
         }
         this.formulaArray.push(this.getInputValue());
         this.inputArray = this.calculator(this.formulaArray);
+        if (this.inputArray[0][0] === '-') {
+          this.isNegative = true;
+        } else {
+          this.isNegative = false;
+        }
+        this.inputArray[0] = Math.abs(this.inputArray[0]).toString();
         this.formulaArray = [];
       },
       firstMethod(array) {
@@ -104,7 +109,11 @@ function main() {
         let b = {number: Number(array[2].replace('.', '')), decimalNum: array[2].split('.')[1] ? array[2].split('.')[1].length : 0};
         if (array[1] === '×') {
           result = a.number * b.number;
-          result = '0'.repeat(a.decimalNum + b.decimalNum) + result.toString();
+          if (result < 0) {
+            result = '-' + '0'.repeat(a.decimalNum + b.decimalNum) + Math.abs(result).toString();
+          } else {
+            result = '0'.repeat(a.decimalNum + b.decimalNum) + result.toString();
+          }
           if (a.decimalNum + b.decimalNum > 0) {
             result = result.slice(0, result.length - (a.decimalNum + b.decimalNum)) + '.' + result.slice(result.length - (a.decimalNum + b.decimalNum));
           }
